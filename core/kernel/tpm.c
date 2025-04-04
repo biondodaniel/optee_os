@@ -10,6 +10,8 @@
 #include <mm/core_memprot.h>
 #include <string.h>
 
+#define CFG_TPM_MAX_LOG_SIZE 1024
+#define CFG_TPM_LOG_BASE_ADDR 0X70000000
 static void *tpm_log_addr;
 static size_t tpm_log_size;
 
@@ -100,14 +102,16 @@ static void get_tpm_phys_params(void *fdt __maybe_unused,
 #else
 	*size = CFG_TPM_MAX_LOG_SIZE;
 	*addr = CFG_TPM_LOG_BASE_ADDR;
+	DMSG("\n\n ---------------------- event log size and address assigned correctly--------------------------- \n\n");
 #endif /* CFG_DT */
 }
 
 TEE_Result tpm_get_event_log(void *buf, size_t *size)
 {
 	const size_t buf_size = *size;
-
+	DMSG("\n\n ---------------------- size in tpm_get_event_log = %zu \n\n", buf_size);
 	*size = tpm_log_size;
+	DMSG("\n\n -------------------- tpm_log_size = %zu \n\n", tpm_log_size);
 	if (!buf) {
 		EMSG("TPM: Invalid buffer");
 		return TEE_ERROR_BAD_PARAMETERS;
@@ -118,7 +122,7 @@ TEE_Result tpm_get_event_log(void *buf, size_t *size)
 		     buf_size, tpm_log_size);
 		return TEE_ERROR_SHORT_BUFFER;
 	}
-
+	DMSG("\n\n -------------------- tpm_log_addr = %p \n\n", (void *)tpm_log_addr);
 	memcpy(buf, tpm_log_addr, tpm_log_size);
 
 	return TEE_SUCCESS;
@@ -145,6 +149,9 @@ void tpm_map_log_area(void *fdt)
 
 	tpm_log_addr = core_mmu_add_mapping(MEM_AREA_RAM_SEC, log_addr,
 					    rounded_size);
+
+	DMSG("\n\n -------------------- tpm_log_addr = %p \n\n", (void *)tpm_log_addr);
+
 	if (!tpm_log_addr) {
 		EMSG("TPM: Failed to map TPM log memory");
 		return;
