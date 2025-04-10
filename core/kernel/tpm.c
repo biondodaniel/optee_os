@@ -147,7 +147,10 @@ void tpm_map_log_area(void *fdt)
 
 	rounded_size = ROUNDUP(tpm_log_size, SMALL_PAGE_SIZE);
 
-	tpm_log_addr = core_mmu_add_mapping(MEM_AREA_RAM_SEC, log_addr,
+	//tpm_log_addr = core_mmu_add_mapping(MEM_AREA_RAM_SEC, log_addr,
+	//				    rounded_size);
+	
+	tpm_log_addr = core_mmu_add_mapping(MEM_AREA_IO_SEC, log_addr,
 					    rounded_size);
 
 	DMSG("\n\n -------------------- tpm_log_addr = %p \n\n", (void *)tpm_log_addr);
